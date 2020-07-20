@@ -11,12 +11,23 @@ const connection = mysql.createConnection({
 connection.connect();
 
 // can run a query
-connection.query("SELECT 1 + 1 AS solution", (error, results, fields) => {
-   if (error) {
-      console.log(error);
-   } else {
-      console.log("The solution is: ", results[0].solution);
+connection.query(
+   `
+   SELECT 
+      users.id 
+   FROM 
+      users 
+   WHERE 
+      users.email = 'kate@gmail.com' 
+   AND 
+      users.password = 'replace_me'`,
+   (error, results) => {
+      if (error) {
+         console.log(error);
+      } else {
+         console.log(results);
+      }
    }
-});
+);
 
 connection.end();
