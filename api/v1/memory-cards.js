@@ -15,11 +15,9 @@ const selectAllCards = require("../../queries/selectAllCards");
 router.get("/", (req, res) => {
    console.log(req.query);
    // pull memory cards by this user and by this search term
-   const { userId, searchTerm } = req.query;
+   const { userId, searchTerm, order } = req.query;
    //router called from server
-   db.query(
-      selectAllCards(userId, searchTerm, "`memory_cards`.`created_at` DESC")
-   ) // use our database to call the query method which opens connection & pass connection
+   db.query(selectAllCards(userId, searchTerm, order)) // use our database to call the query method which opens connection & pass connection
       .then((dbRes) => {
          // console.log(dbRes);
          res.json(dbRes);
