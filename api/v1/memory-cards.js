@@ -16,8 +16,21 @@ router.get("/", (req, res) => {
    console.log(req.query);
    // pull memory cards by this user and by this search term
    const { userId, searchTerm, order } = req.query;
-   //router called from server
-   db.query(selectAllCards(userId, searchTerm, order)) // use our database to call the query method which opens connection & pass connection
+   let constructedSearchTerm;
+   // if search term is empty string or is undefined
+   if (searchTerm === "" || searchTerm === undefined) {
+      constructedSearchTerm = "%%";
+   } else {
+      constructedSearchTerm = `%${searchTerm}%`;
+   }
+   // mysql prepared statements
+   // extracted params running query with placeholder values and then add in these values at each ?
+   db.query(selectAllCards, [
+      userId,
+      constructedSearchTerm,
+      constructedSearchTerm,
+      order,
+   ]) // use our database to call the query method which opens connection & pass connection
       .then((dbRes) => {
          // console.log(dbRes);
          res.json(dbRes);
