@@ -1,0 +1,128 @@
+.btn-link {
+   padding-left: 0;
+   padding-right: 0;
+   font-weight: $font-weight-bold;
+   border: 0;
+}
+.btn-group button {
+   font-weight: $font-weight-normal;
+}
+.btn-nav-bar {
+   font-weight: $font-weight-normal;
+}
+.text-brand {
+   font-family: $font-family-brand;
+}
+
+.tab-separator {
+   border-left: 1px $gray-800 solid;
+}
+.tab-active {
+   background-color: $gray-800;
+}
+.dropdown {
+   font-size: $font-size-base;
+   background-color: $white;
+   border-width: map-get($spacers, 4);
+}
+.card {
+   border: 0;
+}
+.card-body.all-cards {
+   font-size: $font-size-base;
+}
+
+.card textarea {
+   color: $white;
+}
+.card-body {
+   color: $white;
+   font-family: $font-family-serif;
+   font-size: $font-size-base * 1.25;
+}
+.card.bg-primary {
+   border-bottom-left-radius: 0;
+   border-bottom-right-radius: 0;
+}
+.card.bg-secondary {
+   border-top-left-radius: 0;
+   border-top-right-radius: 0;
+}
+textarea {
+   width: 100%;
+   background-color: transparent;
+
+   border: none;
+   overflow: auto;
+   outline: none;
+
+   -webkit-box-shadow: none;
+   -moz-box-shadow: none;
+   box-shadow: none;
+
+   resize: none; /*remove the resize handle on the bottom right*/
+}
+
+.bg-success,
+.bg-danger p.lead {
+   color: $white;
+}
+
+//--landing page--//
+
+.background-image {
+   background: url("../img/background-landing.jpg") no-repeat center center
+      fixed;
+   background-size: cover;
+   // spread image across 100% of the viewport
+   min-height: 100vh;
+}
+.landing-page {
+   font-size: $font-size-base;
+   color: $white;
+}
+.landing-card {
+   padding: map-get($spacers, 4);
+   font-family: $font-family-sans-serif;
+   font-size: $font-size-base;
+}
+
+.sign-up-form {
+   border: thick;
+}
+.form-control {
+   padding: $input-btn-padding-x $input-btn-padding-y;
+   border-color: $primary;
+   line-height: 1.5;
+}
+h1 {
+   font-size: $font-size-base * 3.75;
+   font-family: "Fira Sans";
+}
+h2 {
+   font-size: $font-size-base * 1.6875;
+   font-weight: bold;
+}
+p {
+   font-size: $font-size-base;
+}
+thead {
+   font-weight: $font-weight-normal;
+}
+th {
+   font-weight: $font-weight-normal;
+}
+.custom-control-label {
+   font-size: $font-size-base * 1;
+   padding-left: $input-btn-padding-x;
+}
+
+//All Cards Page//
+.all-cards-important {
+   font-size: $font-size-base;
+}
+
+.disabled {
+   pointer-events: fill !important;
+   cursor: not-allowed;
+}
