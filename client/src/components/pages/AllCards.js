@@ -19,7 +19,7 @@ class AllCards extends React.Component {
    componentDidMount() {
       axios
          .get(
-            "https://raw.githubusercontent.com/kcapasso-mcdaniel/white-bear-mpa/master/src/mock-data.js/memory-cards.json"
+            "/api/v1/memory-cards?userId=54627346-e10b-44a5-8cdf-3c30cc0fa806&searchTerm=bed&order=%60memory_cards%60.%60created_at%60%20DESC"
          )
          .then((res) => {
             // store what we get from api
