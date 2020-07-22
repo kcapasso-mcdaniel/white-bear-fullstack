@@ -29,11 +29,27 @@ router.get("/", (req, res) => {
       userId,
       constructedSearchTerm,
       constructedSearchTerm,
-      order,
+      // can pass an object here with toSqlString: function return order
+      { toSqlString: () => order },
    ]) // use our database to call the query method which opens connection & pass connection
-      .then((dbRes) => {
-         // console.log(dbRes);
-         res.json(dbRes);
+      .then((memoryCards) => {
+         // console.log(memoryCards);
+         // shaping the object database response
+         const camelCaseMemoryCards = memoryCards.map((memoryCard) => {
+            return {
+               id: memoryCard.id,
+               imagery: memoryCard.imagery,
+               answer: memoryCard.answer,
+               userId: memoryCard.user_id,
+               createdAt: memoryCard.created_at,
+               nextAttemptAt: memoryCard.next_attempt_at,
+               lastAttemptAt: memoryCard.last_attempt_at,
+               totalSuccessfulAttempts: memoryCard.total_successful_attempts,
+               level: memoryCard.level,
+            };
+         });
+
+         res.json(camelCaseMemoryCards);
       })
       .catch((err) => {
          // catch if there is a database error and throw error message

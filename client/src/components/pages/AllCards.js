@@ -1,61 +1,28 @@
 import React from "react";
 import AppTemplate from "../ui/AppTemplate";
 import MemoryCard from "../ui/MemoryCard";
-import orderBy from "lodash/orderBy";
+// import orderBy from "lodash/orderBy";
 import axios from "axios";
+
+const userId = "54627346-e10b-44a5-8cdf-3c30cc0fa806";
 
 class AllCards extends React.Component {
    constructor(props) {
       super(props);
 
       this.state = {
-         order: '["createdAt"], ["desc"]',
-         allMemoryCards: [],
-         displayFilteredCards: [],
+         order: "memory_cards.created_at%20DESC",
+         memoryCards: [],
+         searchTerm: "",
       };
    }
 
    // allows to call local state
    componentDidMount() {
-      axios
-         .get(
-            "/api/v1/memory-cards?userId=54627346-e10b-44a5-8cdf-3c30cc0fa806&searchTerm=bed&order=%60memory_cards%60.%60created_at%60%20DESC"
-         )
-         .then((res) => {
-            // store what we get from api
-            console.log(res.data);
-            const memoryCards = res.data;
-            this.setState({
-               allMemoryCards: orderBy(memoryCards, ["createdAt"], ["desc"]),
-               displayFilteredCards: orderBy(
-                  memoryCards,
-                  ["createdAt"],
-                  ["desc"]
-               ),
-            });
-         })
-         .catch((error) => {
-            // handle error
-            console.log(error);
-         });
+      this.setMemoryCards();
    }
 
-   // function to search for a word within a card
-   filterTheInput() {
-      const searchInput = document
-         .getElementById("search-input")
-         .value.toLowerCase();
-      console.log(searchInput, "this is the search input");
-      const copyAllMemoryCards = [...this.state.allMemoryCards];
-      const filteredCards = copyAllMemoryCards.filter((memoryCard) => {
-         let filteredCard =
-            memoryCard.imagery.toLowerCase() + memoryCard.answer.toLowerCase();
-         console.log(filteredCard, "pizza");
-         return filteredCard.includes(searchInput);
-      });
-      this.setState({ displayFilteredCards: filteredCards });
-   }
-
+   // set the order to the new order and fire setMemoryCards
    setOrder(e) {
       console.log("You've made a change");
       const newOrder = e.target.value;
@@ -64,17 +31,28 @@ class AllCards extends React.Component {
       });
    }
 
+   setSearchTerm() {
+      const searchInput = document.getElementById("search-input").value;
+      this.setState({ searchTerm: searchInput }, () => {
+         this.setMemoryCards();
+      });
+   }
+
+   // calls api with the new order and gives us the results
    setMemoryCards() {
-      console.log("setting memory cards");
-      const copyOfDisplayedFilteredCards = [...this.state.displayFilteredCards];
-      const toJson = JSON.parse(this.state.order);
-      console.log(...toJson);
-      const orderedMemoryCards = orderBy(
-         copyOfDisplayedFilteredCards,
-         ...toJson
-      );
-      console.log(orderedMemoryCards);
-      this.setState({ displayFilteredCards: orderedMemoryCards });
+      axios
+         .get(
+            `/api/v1/memory-cards?userId=${userId}&searchTerm=${this.state.searchTerm}&order=${this.state.order}`
+         )
+         .then((res) => {
+            // store what we get from api
+            console.log("Test", res.data);
+            this.setState({ memoryCards: res.data });
+         })
+         .catch((error) => {
+            // handle error
+            console.log(error);
+         });
    }
 
    render() {
@@ -97,7 +75,7 @@ class AllCards extends React.Component {
                      type="button"
                      id="search-button"
                      onClick={() => {
-                        this.filterTheInput();
+                        this.setSearchTerm();
                      }}
                   >
                      Search
@@ -116,20 +94,23 @@ class AllCards extends React.Component {
                      className="form-control-sm w-100"
                      onChange={(e) => this.setOrder(e)}
                   >
-                     <option value='[["createdAt"], ["desc"]]'>
+                     <option value="memory_cards.created_at%20DESC">
                         Most Recent
                      </option>
-                     <option value='[["createdAt"], ["asc"]]'>Oldest</option>
-                     <option value='[["totalSuccessfulAttempts","createdAt"], ["asc", "asc"]]'>
+                     <option value="memory_cards.created_at%20ASC">
+                        Oldest
+                     </option>
+                     <option value="memory_cards.total_successful_attempts%20ASC,%20memory_cards.created_at%20ASC">
                         Hardest
                      </option>
-                     <option value='[["totalSuccessfulAttempts","createdAt"], ["desc", "desc"]]'>
+                     {/* these values are the sql queries themselves */}
+                     <option value="memory_cards.total_successful_attempts%20DESC,%20memory_cards.created_at%20DESC">
                         Easiest
                      </option>
                   </select>
                </div>
             </div>
-            {this.state.displayFilteredCards.map((memoryCard) => {
+            {this.state.memoryCards.map((memoryCard) => {
                return <MemoryCard card={memoryCard} key={memoryCard.id} />;
             })}
          </AppTemplate>
