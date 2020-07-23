@@ -9,7 +9,7 @@ app.use("/api/v1/users", require("./api/v1/users"));
 app.use("/api/v1/memory-cards", require("./api/v1/memory-cards"));
 
 // if not route is built use build folder
-app.use(express().static("client/build"));
+app.use(express.static("client/build"));
 app.get("*", (req, res) => {
    res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));
 });
