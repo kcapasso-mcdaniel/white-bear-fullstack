@@ -5,8 +5,10 @@ const router = express.Router();
 // import from database file
 const db = require("../../db");
 
+const bcrypt = require("bcrypt");
+
 const selectUser = require("../../queries/selectUser");
-const { toJson, toSafelyParseJson } = require("../../utils/helpers");
+const { toJson, toSafelyParseJson, toHash } = require("../../utils/helpers");
 
 // @route  GET api/v1/users
 // @desc  GET a valid user via email and password
@@ -31,5 +33,16 @@ router.get("/", (req, res) => {
 });
 
 // there will be more methods added here router.get()
+
+// @route  POST api/v1/users
+// @desc  Create a new user
+// @access PUBLIC
+
+router.post("/", async (req, res) => {
+   const user = req.body;
+   user.password = await toHash(user.password);
+
+   console.log(user);
+});
 
 module.exports = router;

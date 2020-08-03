@@ -5,6 +5,9 @@ const path = require("path");
 
 // Routes
 
+// used in place of installing body-parser module
+app.use(express.json());
+
 app.use("/api/v1/users", require("./api/v1/users"));
 app.use("/api/v1/memory-cards", require("./api/v1/memory-cards"));
 
