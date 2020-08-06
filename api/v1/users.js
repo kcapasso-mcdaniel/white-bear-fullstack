@@ -5,6 +5,7 @@ const router = express.Router();
 // import from database file
 const db = require("../../db");
 const insertUser = require("../../queries/insertUser");
+const selectUserById = require("../../queries/selectUserById");
 const { toHash } = require("../../utils/helpers");
 const getSignUpEmailError = require("../../validation/getSignUpEmailError");
 const getSignUpPasswordError = require("../../validation/getSignUpPasswordError");
@@ -40,9 +41,10 @@ const getSignUpPasswordError = require("../../validation/getSignUpPasswordError"
 
 router.post("/", async (req, res) => {
    const { id, email, password, createdAt } = req.body;
-   // function that generates strings based on email input
+   // await because of database query
    const emailError = await getSignUpEmailError(email);
    const passwordError = getSignUpPasswordError(password, email);
+   let dbError = "";
    if (emailError === "" && passwordError === "") {
       const user = {
          id: id,
@@ -54,14 +56,30 @@ router.post("/", async (req, res) => {
       // user.password = await toHash(user.password);
       // console.log(user);
       db.query(insertUser, user)
-         .then((dbRes) => {
-            console.log(dbRes);
-            // return the user data to store in Redux store
+         .then(() => {
+            // select the user and search database
+            db.query(selectUserById, id)
+               .then((users) => {
+                  const user = users[0];
+                  // on success
+                  res.status(200).json({
+                     id: user.id,
+                     email: user.email,
+                     createdAt: user.created_at,
+                  });
+               })
+               // if error respond with 400 error dbError json
+               .catch((err) => {
+                  console.log(err);
+                  dbError = `${err.code} ${err.sqlMessage}`;
+                  res.status(400).json({ dbError });
+               });
          })
          .catch((err) => {
             console.log(err);
             // return a 400 error to user
-            res.status(400).json({ emailError, passwordError });
+            dbError = `${err.code} ${err.sqlMessage}`;
+            res.status(400).json({ dbError });
          });
    } else {
       // key value pairs with same label
