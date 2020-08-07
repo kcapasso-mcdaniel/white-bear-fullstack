@@ -22,7 +22,6 @@ function checkIsInDb(email) {
    return db
       .query(selectUserByEmail, email)
       .then((users) => {
-         console.log(users);
          //  if empty array and we couldn't find it
          if (users.length === 0) return false;
          else return true;

@@ -1,7 +1,7 @@
 import React from "react";
 import classnames from "classnames";
-import { v4 as getUuid } from "uuid";
-import { EMAIL_REGEX } from "../../utils/helpers";
+// import { v4 as getUuid } from "uuid";
+// import { EMAIL_REGEX } from "../../utils/helpers";
 import axios from "axios";
 import actions from "../../store/actions";
 import { connect } from "react-redux";
@@ -10,7 +10,6 @@ import { withRouter } from "react-router-dom";
 class LogIn extends React.Component {
    constructor(props) {
       super(props);
-      console.log("In a new class component");
       this.state = {
          isDisplayingInputs: false,
          emailError: "",
@@ -21,39 +20,39 @@ class LogIn extends React.Component {
    }
 
    // function for email validation using state
-   async setValidEmailState(logInEmailInput) {
-      const lowerCasedEmailInput = logInEmailInput.toLowerCase();
-      console.log(lowerCasedEmailInput);
-      // set the state with email error and change string to an error message
-      if (logInEmailInput === "")
-         this.setState({
-            emailError: "Please enter your email address.",
-            hasEmailError: true,
-         });
-      // test evaluates the email input and compares to the regex if false set the state with the error message and hasEmailError is true
-      else if (EMAIL_REGEX.test(lowerCasedEmailInput) === false) {
-         this.setState({
-            emailError: "Please enter a valid email address.",
-            hasEmailError: true,
-         });
-      } else {
-         this.setState({ emailError: "", hasEmailError: false });
-      }
-   }
+   // async setValidEmailState(logInEmailInput) {
+   //    const lowerCasedEmailInput = logInEmailInput.toLowerCase();
+   //    console.log(lowerCasedEmailInput);
+   //    // set the state with email error and change string to an error message
+   //    if (logInEmailInput === "")
+   //       this.setState({
+   //          emailError: "Please enter your email address.",
+   //          hasEmailError: true,
+   //       });
+   //    // test evaluates the email input and compares to the regex if false set the state with the error message and hasEmailError is true
+   //    else if (EMAIL_REGEX.test(lowerCasedEmailInput) === false) {
+   //       this.setState({
+   //          emailError: "Please enter a valid email address.",
+   //          hasEmailError: true,
+   //       });
+   //    } else {
+   //       this.setState({ emailError: "", hasEmailError: false });
+   //    }
+   // }
 
    // function to validate the password with state
-   async setValidPasswordState(logInUpPasswordInput) {
-      console.log(logInUpPasswordInput);
+   // async setValidPasswordState(logInUpPasswordInput) {
+   //    console.log(logInUpPasswordInput);
 
-      if (logInUpPasswordInput === "") {
-         this.setState({
-            passwordError: "Please create a password.",
-            hasPasswordError: true,
-         });
-      } else {
-         this.setState({ passwordError: "", hasPasswordError: false });
-      }
-   }
+   //    if (logInUpPasswordInput === "") {
+   //       this.setState({
+   //          passwordError: "Please create a password.",
+   //          hasPasswordError: true,
+   //       });
+   //    } else {
+   //       this.setState({ passwordError: "", hasPasswordError: false });
+   //    }
+   // }
 
    async validateUserAndLogIn() {
       //   can't be blank
@@ -61,39 +60,62 @@ class LogIn extends React.Component {
          .value;
       const logInPasswordInput = document.getElementById("login-password-input")
          .value;
-      await this.setValidEmailState(logInEmailInput);
-      await this.setValidPasswordState(logInPasswordInput);
-      if (
-         this.state.hasEmailError === false &&
-         this.state.hasPasswordError === false
-      ) {
-         const user = {
-            id: getUuid(),
-            email: logInEmailInput,
-            password: logInPasswordInput,
-            createdAt: Date.now(),
-         };
-         console.log("created user object for POST: ", user);
-         // Mimic API response
-         axios
-            .get(
-               "https://raw.githubusercontent.com/kcapasso-mcdaniel/white-bear-mpa/master/src/mock-data.js/user.json"
-            )
-            .then((res) => {
-               // store what we get from api
-               const currentUser = res.data;
-               console.log(currentUser);
-               this.props.dispatch({
-                  type: actions.UPDATE_CURRENT_USER,
-                  payload: res.data,
-               });
-            })
-            .catch((error) => {
-               // handle error
-               console.log(error);
+
+      // await this.setValidEmailState(logInEmailInput);
+      // await this.setValidPasswordState(logInPasswordInput);
+      // if (
+      //    this.state.hasEmailError === false &&
+      //    this.state.hasPasswordError === false
+      // ) {
+      const user = {
+         // id: getUuid(),
+         email: logInEmailInput,
+         password: logInPasswordInput,
+         // createdAt: Date.now(),
+      };
+
+      axios
+         // .get(
+         //    "https://raw.githubusercontent.com/kcapasso-mcdaniel/white-bear-mpa/master/src/mock-data.js/user.json"
+         // )
+         .post("/api/v1/users/auth", user)
+         // .then((res) => {
+         //    // store what we get from api
+         //    const currentUser = res.data;
+         //    console.log(currentUser);
+         //    this.props.dispatch({
+         //       type: actions.UPDATE_CURRENT_USER,
+         //       payload: res.data,
+         //    });
+         //    // redirect the user
+         //    // this.props.history.push("/create-answer");
+         // })
+         .then((res) => {
+            console.log(res.data);
+            // Update currentUser in global state with API response
+            this.props.dispatch({
+               type: actions.UPDATE_CURRENT_USER,
+               payload: res.data,
             });
-         this.props.history.push("/create-answer");
-      }
+            // Go to next page:
+            this.props.history.push("/create-answer");
+         })
+         .catch((err) => {
+            const { data } = err.response;
+            console.log("data", data); // password and email error
+            const { emailError, passwordError } = data;
+            if (emailError !== "") {
+               this.setState({ hasEmailError: true, emailError });
+            } else {
+               this.setState({ hasEmailError: false, emailError });
+            }
+            if (passwordError !== "") {
+               this.setState({ hasPasswordError: true, passwordError });
+            } else {
+               this.setState({ hasPasswordError: false, passwordError });
+            }
+         });
+      // }
    }
 
    render() {

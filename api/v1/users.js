@@ -1,4 +1,4 @@
-//This is the users resource
+//Users resource
 // represents our table and how we would manipulate our table
 const express = require("express");
 const router = express.Router();
@@ -6,9 +6,12 @@ const router = express.Router();
 const db = require("../../db");
 const insertUser = require("../../queries/insertUser");
 const selectUserById = require("../../queries/selectUserById");
+const selectUserByEmail = require("../../queries/selectUserByEmail");
 const { toHash } = require("../../utils/helpers");
 const getSignUpEmailError = require("../../validation/getSignUpEmailError");
 const getSignUpPasswordError = require("../../validation/getSignUpPasswordError");
+const getLoginEmailError = require("../../validation/getLoginEmailError");
+const getLoginPasswordError = require("../../validation/getLoginPasswordError");
 
 // @route  GET api/v1/users
 // @desc  GET a valid user via email and password
@@ -45,6 +48,7 @@ router.post("/", async (req, res) => {
    const emailError = await getSignUpEmailError(email);
    const passwordError = getSignUpPasswordError(password, email);
    let dbError = "";
+   // if there are no errors
    if (emailError === "" && passwordError === "") {
       const user = {
          id: id,
@@ -74,6 +78,43 @@ router.post("/", async (req, res) => {
                   dbError = `${err.code} ${err.sqlMessage}`;
                   res.status(400).json({ dbError });
                });
+         })
+         .catch((err) => {
+            console.log(err);
+            // return a 400 error to user
+            dbError = `${err.code} ${err.sqlMessage}`;
+            res.status(400).json({ dbError });
+         });
+   } else {
+      // key value pairs with same label
+      res.status(400).json({ emailError, passwordError });
+   }
+});
+
+// @route  POST api/v1/users/auth //posting to auth resource
+// @desc   Authorize this user via email and password
+// @access PUBLIC
+
+// "/auth" indicates a sub route
+router.post("/auth", async (req, res) => {
+   const { email, password } = req.body;
+   // await because of database query
+   const emailError = getLoginEmailError(email);
+   const passwordError = await getLoginPasswordError(password, email);
+   console.log({ emailError, passwordError });
+   let dbError = "";
+   if (emailError === "" && passwordError === "") {
+      // return the user to the client
+      // this query does not have a return because it is executing a side effect versus returning something
+      // the side effect is the 200 status and give it json
+      db.query(selectUserByEmail, email)
+         .then((users) => {
+            const user = users[0];
+            res.status(200).json({
+               id: user.id,
+               email: user.email,
+               createAt: user.created_at,
+            });
          })
          .catch((err) => {
             console.log(err);
