@@ -1,4 +1,5 @@
 //Users resource
+require("dotenv").config();
 // represents our table and how we would manipulate our table
 const express = require("express");
 const router = express.Router();
@@ -12,6 +13,9 @@ const getSignUpEmailError = require("../../validation/getSignUpEmailError");
 const getSignUpPasswordError = require("../../validation/getSignUpPasswordError");
 const getLoginEmailError = require("../../validation/getLoginEmailError");
 const getLoginPasswordError = require("../../validation/getLoginPasswordError");
+
+// json web token
+const jwt = require("jsonwebtoken");
 
 // @route  GET api/v1/users
 // @desc  GET a valid user via email and password
@@ -101,7 +105,7 @@ router.post("/auth", async (req, res) => {
    // await because of database query
    const emailError = getLoginEmailError(email);
    const passwordError = await getLoginPasswordError(password, email);
-   console.log({ emailError, passwordError });
+
    let dbError = "";
    if (emailError === "" && passwordError === "") {
       // return the user to the client
@@ -109,12 +113,17 @@ router.post("/auth", async (req, res) => {
       // the side effect is the 200 status and give it json
       db.query(selectUserByEmail, email)
          .then((users) => {
-            const user = users[0];
-            res.status(200).json({
-               id: user.id,
-               email: user.email,
-               createAt: user.created_at,
+            // remember to repeat when creating a user
+            const user = {
+               id: users[0].id,
+               email: users[0].email,
+               createdAt: users[0].created_at,
+            };
+            const accessToken = jwt.sign(user, process.env.JWT_ACCESS_SECRET, {
+               expiresIn: "1m",
             });
+
+            res.status(200).json(accessToken);
          })
          .catch((err) => {
             console.log(err);

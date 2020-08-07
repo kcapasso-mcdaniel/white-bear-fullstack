@@ -25,7 +25,6 @@ function checkIsValidUser(email, password) {
             const isValidUser = await bcrypt
                .compare(password, user.password)
                .then((isValidUser) => {
-                  console.log(isValidUser);
                   return isValidUser;
                })
                // remember to pay attention to each then statement for a catch statement
