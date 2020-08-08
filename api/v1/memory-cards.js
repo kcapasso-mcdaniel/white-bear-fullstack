@@ -6,16 +6,18 @@ const router = express.Router();
 const db = require("../../db");
 
 const selectAllCards = require("../../queries/selectAllCards");
+const validateJwt = require("../../utils/validateJwt");
 
 // @route  GET api/v1/memory-cards
-// @desc  GET all memory cards for a user by search term and order
-// @access PUBLIC
+// @desc   GET all memory cards for a user by search term and order
+// @access Private
 
 // select user query
-router.get("/", (req, res) => {
+router.get("/", validateJwt, (req, res) => {
    console.log(req.query);
    // pull memory cards by this user and by this search term
-   const { userId, searchTerm, order } = req.query;
+   const { searchTerm, order } = req.query;
+   const userId = req.user.id;
    let constructedSearchTerm;
    // if search term is empty string or is undefined
    if (searchTerm === "" || searchTerm === undefined) {
@@ -49,7 +51,7 @@ router.get("/", (req, res) => {
             };
          });
 
-         res.json(camelCaseMemoryCards);
+         res.status(200).json(camelCaseMemoryCards);
       })
       .catch((err) => {
          // catch if there is a database error and throw error message
@@ -57,7 +59,5 @@ router.get("/", (req, res) => {
          res.status(400).json(err);
       });
 });
-
-// there will be more methods added here router.get()
 
 module.exports = router;
