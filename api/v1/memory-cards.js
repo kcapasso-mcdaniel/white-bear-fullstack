@@ -5,6 +5,7 @@ const router = express.Router();
 // import from database file
 const db = require("../../db");
 const selectAllCards = require("../../queries/selectAllCards");
+const insertMemoryCard = require("../../queries/insertMemoryCard");
 const validateJwt = require("../../utils/validateJwt");
 
 // @route  GET api/v1/memory-cards
@@ -56,6 +57,45 @@ router.get("/", validateJwt, (req, res) => {
          // catch if there is a database error and throw error message
          console.log(err);
          res.status(400).json(err);
+      });
+});
+
+// @route  POST api/v1/memory-cards
+// @desc   POST a memory card to the memory cards resource
+// @access Private
+
+// select user query
+router.post("/", validateJwt, (req, res) => {
+   const user = req.user;
+   const {
+      id,
+      imagery,
+      answer,
+      createdAt,
+      nextAttemptAt,
+      lastAttemptAt,
+      totalSuccessfulAttempts,
+      level,
+   } = req.body;
+   const memoryCard = {
+      id,
+      imagery,
+      answer,
+      user_id: user.id,
+      created_at: createdAt,
+      next_attempt_at: nextAttemptAt,
+      last_attempt_at: lastAttemptAt,
+      total_successful_attempts: totalSuccessfulAttempts,
+      level,
+   };
+   console.log(memoryCard);
+   db.query(insertMemoryCard, memoryCard)
+      .then(() => {
+         //success
+         console.log("created memory card in the db");
+      })
+      .catch((err) => {
+         console.log(err);
       });
 });
 

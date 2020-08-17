@@ -1,14 +1,18 @@
 import React from "react";
 import AppTemplate from "../ui/AppTemplate";
-import { Link } from "react-router-dom";
 import classnames from "classnames";
-import { checkIsOver, MAX_CARD_CHARS } from "../../utils/helpers";
+import { checkIsOver, MAX_CARD_CHARS, defaultLevel } from "../../utils/helpers";
+import { connect } from "react-redux";
+import { v4 as getUuid } from "uuid";
+import actions from "../../store/actions";
+import getNextAttemptAt from "../../utils/getNextAttemptAt";
 
-export default class CreateAnswer extends React.Component {
+class CreateAnswer extends React.Component {
    constructor(props) {
       super(props);
       this.state = {
-         answerText: "",
+         // if there is an answer us that or undefined use blank string
+         answerText: this.props.creatableCard.answer || "",
       };
    }
 
@@ -25,6 +29,27 @@ export default class CreateAnswer extends React.Component {
       } else return false;
    }
 
+   setCreatableCard() {
+      console.log("UPDATE_CREATABLE_CARD");
+      const currentTime = Date.now();
+      this.props.dispatch({
+         type: actions.UPDATE_CREATABLE_CARD,
+         payload: {
+            // the card itself
+            id: getUuid(),
+            answer: this.state.answerText,
+            imagery: "",
+            userId: this.props.currentUser.id,
+            createdAt: currentTime,
+            nextAttemptAt: getNextAttemptAt(defaultLevel, currentTime), //
+            lastAttemptAt: currentTime,
+            totalSuccessfulAttempts: 0,
+            level: 1,
+         },
+      });
+      this.props.history.push("/create-imagery");
+   }
+
    render() {
       return (
          <AppTemplate>
@@ -36,6 +61,7 @@ export default class CreateAnswer extends React.Component {
                      rows="11"
                      id="answerArea"
                      onChange={(e) => this.setAnswerText(e)}
+                     defaultValue={this.state.answerText}
                      autoFocus={true}
                   ></textarea>
                </div>
@@ -56,19 +82,31 @@ export default class CreateAnswer extends React.Component {
 
             <div className="clearfix"></div>
 
-            <Link
-               to="create-imagery"
+            <button
                className={classnames(
                   "btn btn-outline-primary float-right px-6",
                   {
                      disabled: this.checkAnswerHasInvalidCharacterCount(),
                   }
                )}
+               onClick={() => {
+                  this.setCreatableCard();
+               }}
                id="next-button"
             >
                Next
-            </Link>
+            </button>
          </AppTemplate>
       );
    }
 }
+
+// global state
+function mapStateToProps(state) {
+   return {
+      currentUser: state.currentUser,
+      creatableCard: state.creatableCard,
+   };
+}
+
+export default connect(mapStateToProps)(CreateAnswer);

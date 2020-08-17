@@ -4,10 +4,11 @@ import AppTemplate from "../ui/AppTemplate";
 import { Link } from "react-router-dom";
 import classnames from "classnames";
 import { checkIsOver, MAX_CARD_CHARS } from "../../utils/helpers";
-import memoryCards from "../../mock-data.js/memory-cards";
-const memoryCard = memoryCards[0];
+import { connect } from "react-redux";
+import actions from "../../store/actions";
+import axios from "axios";
 
-export default class CreateImagery extends React.Component {
+class CreateImagery extends React.Component {
    constructor(props) {
       super(props);
       this.state = {
@@ -27,6 +28,50 @@ export default class CreateImagery extends React.Component {
          return true;
       } else return false;
    }
+
+   async updateCreateableCard() {
+      console.log("UPDATE CREATABLE CARD");
+      const {
+         id,
+         answer,
+         userId,
+         createdAt,
+         nextAttemptAt,
+         lastAttemptAt,
+         totalSuccessfulAttempts,
+         level,
+      } = this.props.creatableCard;
+      await this.props.dispatch({
+         type: actions.UPDATE_CREATABLE_CARD,
+         payload: {
+            id: id,
+            answer: answer,
+            imagery: this.state.imageryText,
+            userId: userId,
+            createdAt: createdAt,
+            nextAttemptAt: nextAttemptAt, //
+            lastAttemptAt: lastAttemptAt,
+            totalSuccessfulAttempts: totalSuccessfulAttempts,
+            level: level,
+         },
+      });
+      // save to the database with API
+      axios
+         .post("/api/v1/memory-cards/", this.props.creatableCard)
+         .then((res) => {
+            console.log("Memory Card created");
+            // display success overlay
+            // route to "/create-answer"
+         })
+         .catch((err) => {
+            const { data } = err.response;
+            console.log("data", data); // password and email error
+            // display error overlay
+            // hide error overlay
+            // stay on this page
+         });
+   }
+
    render() {
       return (
          <AppTemplate>
@@ -46,7 +91,7 @@ export default class CreateImagery extends React.Component {
             </div>
             <div className="card" id="cardText">
                <div className="card-body bg-secondary ">
-                  {memoryCard.imagery}
+                  {this.props.creatableCard.answer}
                </div>
             </div>
 
@@ -72,11 +117,13 @@ export default class CreateImagery extends React.Component {
             >
                Back to answer
             </Link>
-            <Link
-               to="create-answer"
+            <button
                className={classnames("btn btn-primary btn-lg float-right", {
                   disabled: this.checkImageryHasInvalidCharacterCount(),
                })}
+               onClick={() => {
+                  this.updateCreateableCard();
+               }}
                id="save-imageryButton"
             >
                <img
@@ -86,8 +133,16 @@ export default class CreateImagery extends React.Component {
                   alt=""
                />
                Save
-            </Link>
+            </button>
          </AppTemplate>
       );
    }
 }
+// global state
+function mapStateToProps(state) {
+   return {
+      creatableCard: state.creatableCard,
+   };
+}
+
+export default connect(mapStateToProps)(CreateImagery);
