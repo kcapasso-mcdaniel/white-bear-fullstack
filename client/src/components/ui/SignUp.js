@@ -113,6 +113,9 @@ class SignUp extends React.Component {
                   type: actions.UPDATE_CURRENT_USER,
                   payload: res.data,
                });
+
+               // axios.defaults.headers.common["x-auth-token"] = authToken;
+
                // Go to next page:
                this.props.history.push("/create-answer");
             })

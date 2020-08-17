@@ -4,7 +4,6 @@ const express = require("express");
 const router = express.Router();
 // import from database file
 const db = require("../../db");
-
 const selectAllCards = require("../../queries/selectAllCards");
 const validateJwt = require("../../utils/validateJwt");
 

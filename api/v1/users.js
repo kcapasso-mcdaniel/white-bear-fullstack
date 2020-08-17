@@ -119,7 +119,9 @@ router.post("/auth", async (req, res) => {
                email: users[0].email,
                createdAt: users[0].created_at,
             };
+            // encoding the user information
             const accessToken = jwt.sign(user, process.env.JWT_ACCESS_SECRET, {
+               // how long before use must log back in
                expiresIn: "100m",
             });
 

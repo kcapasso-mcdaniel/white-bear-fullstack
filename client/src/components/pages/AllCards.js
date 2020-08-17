@@ -4,8 +4,6 @@ import MemoryCard from "../ui/MemoryCard";
 // import orderBy from "lodash/orderBy";
 import axios from "axios";
 
-const userId = "54627346-e10b-44a5-8cdf-3c30cc0fa806";
-
 class AllCards extends React.Component {
    constructor(props) {
       super(props);
@@ -42,7 +40,7 @@ class AllCards extends React.Component {
    setMemoryCards() {
       axios
          .get(
-            `/api/v1/memory-cards?userId=${userId}&searchTerm=${this.state.searchTerm}&order=${this.state.order}`
+            `/api/v1/memory-cards?&searchTerm=${this.state.searchTerm}&order=${this.state.order}`
          )
          .then((res) => {
             // store what we get from api

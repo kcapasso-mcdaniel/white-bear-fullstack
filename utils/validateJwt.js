@@ -2,10 +2,12 @@ require("dotenv").config();
 const jwt = require("jsonwebtoken");
 
 module.exports = function validiatJwt(req, res, next) {
+   //must have these 3 params
    const accessToken = req.header("x-auth-token");
 
+   // if there is no accessToken return 401
    if (!accessToken) {
-      // remember 401 stands for unauthorized
+      // 401 unauthorized error message
       return res.status(401).json({ authError: "No token provided." });
    }
 
